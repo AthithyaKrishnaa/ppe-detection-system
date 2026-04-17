@@ -1,0 +1,8 @@
+{
+  "name": "ppe-detection-system-root",
+  "private": true,
+  "scripts": {
+    "build": "cd client && npm install && npm run build",
+    "install": "cd client && npm install"
+  }
+}
