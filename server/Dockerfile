@@ -4,9 +4,8 @@ FROM nikolaik/python-nodejs:python3.11-nodejs20
 # Create and set the working directory
 WORKDIR /app
 
-# Install system dependencies for OpenCV and AI
-RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+# Install system dependencies for AI and OpenCV
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
