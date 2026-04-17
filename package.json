@@ -1,8 +1,10 @@
 {
   "name": "ppe-detection-system-root",
   "private": true,
+  "workspaces": [
+    "client"
+  ],
   "scripts": {
-    "build": "cd client && npm install && npm run build",
-    "install": "cd client && npm install"
+    "build": "npm run build --workspace=client"
   }
 }
