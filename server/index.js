@@ -57,7 +57,7 @@ app.post('/api/predict', upload.single('image'), async (req, res) => {
     errData += data.toString();
   });
 
-  pythonProcess.on('close', (code) => {
+  pythonProcess.on('close', async (code) => {
     console.log(`Python process exited with code ${code}`);
     
     if (code !== 0) {
