@@ -77,8 +77,11 @@ def main():
             try:
                 from ultralytics import YOLO
                 model = YOLO(model_path)
-            except ImportError:
-                print(json.dumps({"error": "ultralytics package is not installed."}))
+            except ImportError as ie:
+                print(json.dumps({"error": f"Import failed: {str(ie)}. Likely missing system dependencies or package not in path."}))
+                sys.exit(1)
+            except Exception as e2:
+                print(json.dumps({"error": f"Unexpected error during fallback import: {str(e2)}"}))
                 sys.exit(1)
 
         print("🚀 Model loaded. Starting inference...")
