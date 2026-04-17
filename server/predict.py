@@ -13,7 +13,8 @@ def main():
     conf_threshold = float(sys.argv[3]) if len(sys.argv) > 3 else 0.45
     
     # Resolve model path
-    model_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'weight'))
+    # Look in the same directory as this script first (standard for Render deployment)
+    model_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'weight'))
     model_path = os.path.join(model_dir, 'best.pt')
 
     # Create directory if it doesn't exist
@@ -67,10 +68,12 @@ def main():
 
     try:
         # We import here so it doesn't slow down the quick syntax error check etc.
+        print("📦 Loading model into memory...")
         try:
             from ultralytics import RTDETR
             model = RTDETR(model_path)
-        except Exception:
+        except Exception as e:
+            print(f"Info: RTDETR import failed ({str(e)}), trying YOLO wrapper...")
             try:
                 from ultralytics import YOLO
                 model = YOLO(model_path)
@@ -78,10 +81,12 @@ def main():
                 print(json.dumps({"error": "ultralytics package is not installed."}))
                 sys.exit(1)
 
+        print("🚀 Model loaded. Starting inference...")
         # Run inference
+        # On CPU, we don't use half=True unless specifically supported, but we can try to limit memory
         results = model.predict(source=input_path, save=False, conf=conf_threshold)
         
-        # Save annotated image
+        print("✅ Inference finished. Saving results...")
         first_result = results[0]
         first_result.save(filename=output_path)
 

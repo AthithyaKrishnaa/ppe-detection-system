@@ -125,8 +125,11 @@ function App() {
         // Try to get error message from JSON, otherwise use status text
         if (contentType && contentType.includes("application/json")) {
           const errorData = await response.json();
-          const detailMsg = errorData.details || errorData.output || '';
-          throw new Error(errorData.error + (detailMsg ? `: ${detailMsg.substring(0, 150)}...` : '') || `Server error: ${response.status}`);
+          // The actual error is usually at the END of the captured logs
+          const rawDetail = errorData.details || errorData.output || '';
+          const detailMsg = rawDetail.length > 300 ? `...${rawDetail.slice(-300)}` : rawDetail;
+          
+          throw new Error(`${errorData.error}${detailMsg ? `: ${detailMsg}` : ''}`);
         } else {
           const text = await response.text();
           console.error('Non-JSON Error Response:', text.substring(0, 200));
