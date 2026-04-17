@@ -105,7 +105,14 @@ function App() {
     formData.append('threshold', threshold.toString());
 
     // Switch to Render URL when ready, or use Localhost
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    let API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    
+    // Remote trailing slash if present to avoid double slashes
+    if (API_URL.endsWith('/')) {
+      API_URL = API_URL.slice(0, -1);
+    }
+
+    console.log('Targeting API:', `${API_URL}/api/predict`);
 
     try {
       const response = await fetch(`${API_URL}/api/predict`, {
@@ -113,14 +120,28 @@ function App() {
         body: formData,
       });
 
-      const data = await response.json();
-      if (response.ok) {
-        setResultUrl(data.resultUrl);
-        setDetections(data.metadata?.detections || {});
-      } else {
-        setError(data.error || 'Inference failed');
+      const contentType = response.headers.get("content-type");
+      if (!response.ok) {
+        // Try to get error message from JSON, otherwise use status text
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `Server error: ${response.status}`);
+        } else {
+          const text = await response.text();
+          console.error('Non-JSON Error Response:', text.substring(0, 200));
+          throw new Error(`Server returned HTML/Text instead of JSON (Status: ${response.status}). Ensure the API URL is correct.`);
+        }
       }
+
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Server did not return a JSON response. Check your API URL.");
+      }
+
+      const data = await response.json();
+      setResultUrl(data.resultUrl);
+      setDetections(data.metadata?.detections || {});
     } catch (err) {
+      console.error('Fetch error:', err);
       setError(err.message || 'Network error');
     } finally {
       setLoading(false);
