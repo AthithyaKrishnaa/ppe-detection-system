@@ -72,9 +72,16 @@ app.post('/api/predict', upload.single('image'), async (req, res) => {
     console.log(`Python process exited with code ${code}`);
     
     if (code !== 0) {
+      console.error('--- PYTHON EXECUTION FAILED ---');
+      console.error('Exit Code:', code);
       console.error('Python Output:', outData);
       console.error('Python Error:', errData);
-      return res.status(500).json({ error: 'Inference failed', details: errData });
+      console.error('-------------------------------');
+      return res.status(500).json({ 
+        error: 'Inference failed', 
+        details: errData,
+        output: outData 
+      });
     }
 
     try {
