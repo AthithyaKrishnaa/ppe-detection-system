@@ -15,6 +15,17 @@ const supabase = process.env.SUPABASE_URL && process.env.SUPABASE_KEY
   ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
   : null;
 
+// Ensure uploads and outputs directories exist
+const uploadsDir = path.join(__dirname, 'uploads');
+const outputsDir = path.join(__dirname, 'outputs');
+
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+if (!fs.existsSync(outputsDir)) {
+  fs.mkdirSync(outputsDir, { recursive: true });
+}
+
 app.use(cors());
 app.use(express.json());
 
@@ -44,7 +55,7 @@ app.post('/api/predict', upload.single('image'), async (req, res) => {
   const threshold = req.body.threshold || '0.45';
 
   // Spawn Python script
-  const pythonProcess = spawn('python', ['predict.py', inputPath, outputPath, threshold], { cwd: __dirname });
+  const pythonProcess = spawn('python3', ['predict.py', inputPath, outputPath, threshold], { cwd: __dirname });
 
   let outData = '';
   let errData = '';
