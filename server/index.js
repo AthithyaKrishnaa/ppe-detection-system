@@ -26,8 +26,29 @@ if (!fs.existsSync(outputsDir)) {
   fs.mkdirSync(outputsDir, { recursive: true });
 }
 
-app.use(cors());
+// Enhanced CORS configuration
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  credentials: true
+}));
+
 app.use(express.json());
+
+// Global error handler for process stability
+process.on('unhandledRejection', (reason, p) => {
+  console.error('Unhandled Rejection at:', p, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception thrown:', err);
+});
+
+// Root health check endpoint
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', service: 'ppe-detection-backend' });
+});
 
 // Serve the outputs directory statically so the frontend can access the images
 app.use('/outputs', express.static(path.join(__dirname, 'outputs')));
