@@ -1,0 +1,12 @@
+# Exclude non-UI files from Vercel deployment
+notebook/
+weight/
+kaggle.json
+.git/
+.gitignore
+README.md
+dataset/
+runs/
+*.pt
+*.pth
+*.ipynb

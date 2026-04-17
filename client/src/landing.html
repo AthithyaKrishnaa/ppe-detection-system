@@ -1,0 +1,503 @@
+
+
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="reveal">
+    <div class="section-label">Workflow</div>
+    <h2>End-to-End <em>Pipeline</em></h2>
+    <p class="section-desc">
+      Two Colab notebooks cover the full lifecycle — from raw Kaggle data to an explainable, annotated output.
+    </p>
+  </div>
+
+  <div class="pipeline reveal">
+    <div class="pipe-step">
+      <div class="pipe-num">01 / TRAINING</div>
+      <span class="pipe-icon">⚙️</span>
+      <div class="pipe-title">Environment Setup</div>
+      <div class="pipe-detail">Install Ultralytics, Supervision, PyTorch. Verify T4 GPU. Mount Google Drive.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">02 / TRAINING</div>
+      <span class="pipe-icon">🗂️</span>
+      <div class="pipe-title">Dataset Prep</div>
+      <div class="pipe-detail">Download <a href="https://www.kaggle.com/datasets/athithyakrishnaa/ppe-clean-dataset" target="_blank" style="color: var(--amber); text-decoration: none; font-weight: 600;">PPE Clean Dataset</a> from Kaggle. Filter 4 PPE classes. Remap label IDs. Write YAML manifest.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">03 / TRAINING</div>
+      <span class="pipe-icon">🧠</span>
+      <div class="pipe-title">Train RT-DETRv4-X</div>
+      <div class="pipe-detail">AdamW + cosine LR + FP16. 15 epochs, 640px. Checkpoints saved to Drive.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">04 / TRAINING</div>
+      <span class="pipe-icon">📊</span>
+      <div class="pipe-title">Evaluate</div>
+      <div class="pipe-detail">mAP, per-class AP, precision, recall, F1, MCC. FPS benchmark on T4 GPU.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">05 / TESTING</div>
+      <span class="pipe-icon">🎬</span>
+      <div class="pipe-title">Video & Image Inference</div>
+      <div class="pipe-detail">Custom images + video. Annotated outputs with colour-coded bounding boxes.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">06 / TESTING</div>
+      <span class="pipe-icon">🔥</span>
+      <div class="pipe-title">Explainable AI</div>
+      <div class="pipe-detail">EigenCAM heatmaps per class — visualises where the model looks to decide.</div>
+    </div>
+  </div>
+</section>
+
+
+<div class="section-divider"></div>
+
+<!-- DATASET -->
+<section id="dataset">
+  <div class="reveal">
+    <div class="section-label">Data Architecture</div>
+    <h2>Dataset <em>Overview</em></h2>
+    <p class="section-desc">
+      The model is trained on a curated PPE dataset with a multi-split architecture ensuring robust validation and testing across thousands of annotated instances.
+    </p>
+  </div>
+
+  <div class="dataset-container reveal">
+    <!-- YAML Config -->
+    <div class="yaml-config">
+      <div class="yaml-header">
+        <div class="dots"><span style="background:#ff5f56"></span><span style="background:#ffbd2e"></span><span style="background:#27c93f"></span></div>
+        <div class="yaml-title">ppe_data.yaml</div>
+      </div>
+      <pre class="yaml-content"><code>path: /content/dataset
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 4
+names:
+  - Helmet
+  - No Helmet
+  - Safety Vest
+  - No Safety Vest</code></pre>
+    </div>
+
+    <!-- Distribution Tabs/Grid -->
+    <div class="dist-grid">
+      <!-- Train -->
+      <div class="dist-card">
+        <div class="dist-header">TRAIN SPLIT <span class="count">12,457 Total Labels</span></div>
+        <div class="dist-body">
+          <div class="dist-row"><span class="lbl">Helmet</span><div class="bar-wrap"><div class="bar-fill" style="width: 25.2%; background: #22c55e;"></div></div><span class="val">3,145</span></div>
+          <div class="dist-row"><span class="lbl">No Helmet</span><div class="bar-wrap"><div class="bar-fill" style="width: 18.6%; background: #ef4444;"></div></div><span class="val">2,317</span></div>
+          <div class="dist-row"><span class="lbl">Safety Vest</span><div class="bar-wrap"><div class="bar-fill" style="width: 24.3%; background: #22d3ee;"></div></div><span class="val">3,033</span></div>
+          <div class="dist-row"><span class="lbl">No Safety Vest</span><div class="bar-wrap"><div class="bar-fill" style="width: 31.8%; background: #fb923c;"></div></div><span class="val">3,962</span></div>
+        </div>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <!-- Valid -->
+        <div class="dist-card">
+          <div class="dist-header">VALID <span class="count">295 Labels</span></div>
+          <div class="dist-body">
+            <div class="dist-row"><span class="lbl">Helmet</span><div class="bar-wrap"><div class="bar-fill" style="width: 26.8%; background: #22c55e;"></div></div><span class="val">79</span></div>
+            <div class="dist-row"><span class="lbl">No Helmet</span><div class="bar-wrap"><div class="bar-fill" style="width: 23.4%; background: #ef4444;"></div></div><span class="val">69</span></div>
+            <div class="dist-row"><span class="lbl">Vest</span><div class="bar-wrap"><div class="bar-fill" style="width: 13.9%; background: #22d3ee;"></div></div><span class="val">41</span></div>
+            <div class="dist-row"><span class="lbl">No Vest</span><div class="bar-wrap"><div class="bar-fill" style="width: 35.9%; background: #fb923c;"></div></div><span class="val">106</span></div>
+          </div>
+        </div>
+        <!-- Test -->
+        <div class="dist-card">
+          <div class="dist-header">TEST <span class="count">302 Labels</span></div>
+          <div class="dist-body">
+            <div class="dist-row"><span class="lbl">Helmet</span><div class="bar-wrap"><div class="bar-fill" style="width: 36.4%; background: #22c55e;"></div></div><span class="val">110</span></div>
+            <div class="dist-row"><span class="lbl">No Helmet</span><div class="bar-wrap"><div class="bar-fill" style="width: 13.6%; background: #ef4444;"></div></div><span class="val">41</span></div>
+            <div class="dist-row"><span class="lbl">Vest</span><div class="bar-wrap"><div class="bar-fill" style="width: 20.2%; background: #22d3ee;"></div></div><span class="val">61</span></div>
+            <div class="dist-row"><span class="lbl">No Vest</span><div class="bar-wrap"><div class="bar-fill" style="width: 29.8%; background: #fb923c;"></div></div><span class="val">90</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+
+
+<!-- CLASSES -->
+<section id="results">
+  <div class="reveal">
+    <div class="section-label">Detection Classes</div>
+    <h2>What the Model <em>Detects</em></h2>
+    <p class="section-desc">Four PPE classes, colour-coded by compliance status — green for wearing, red/orange for violations.</p>
+  </div>
+
+  <div class="class-legend reveal">
+    <div class="class-chip">
+      <div class="class-dot" style="background: #22c55e;"></div>
+      <div>
+        <div class="class-id">CLASS 0</div>
+        <div class="class-name">Helmet</div>
+      </div>
+    </div>
+    <div class="class-chip">
+      <div class="class-dot" style="background: #ef4444;"></div>
+      <div>
+        <div class="class-id">CLASS 1</div>
+        <div class="class-name">No Helmet</div>
+      </div>
+    </div>
+    <div class="class-chip">
+      <div class="class-dot" style="background: #22d3ee;"></div>
+      <div>
+        <div class="class-id">CLASS 2</div>
+        <div class="class-name">Safety Vest</div>
+      </div>
+    </div>
+    <div class="class-chip">
+      <div class="class-dot" style="background: #fb923c;"></div>
+      <div>
+        <div class="class-id">CLASS 3</div>
+        <div class="class-name">No Safety Vest</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="reveal">
+    <div class="section-label" style="margin-top: 1rem;">Performance</div>
+    <h2>Model <em>Metrics</em></h2>
+    <p class="section-desc">Evaluated on the held-out test split at conf = 0.5, image size 640px.</p>
+  </div>
+
+  <div class="metrics-grid reveal">
+    <div class="metric-card">
+      <div class="m-val">~84.1%</div>
+      <div class="m-lbl">mAP@50</div>
+      <div class="m-sub">Detection accuracy</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-val">~66.1%</div>
+      <div class="m-lbl">mAP@75</div>
+      <div class="m-sub">Stricter IoU</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-val">~55.1%</div>
+      <div class="m-lbl">mAP@50:95</div>
+      <div class="m-sub">COCO standard</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-val">12.51</div>
+      <div class="m-lbl">FPS</div>
+      <div class="m-sub">Real-time performance</div>
+    </div>
+  </div>
+
+  <div class="reveal" style="background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;">
+    <table class="class-table">
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Status</th>
+          <th>Average Precision (AP)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Helmet</strong></td>
+          <td><span class="badge badge-green">Compliant</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span>~93.6%</span>
+              <div class="bar-wrap"><div class="bar-fill" style="width:93.6%;background:var(--green)"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>No Helmet</strong></td>
+          <td><span class="badge badge-red">Violation</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span>~69.1%</span>
+              <div class="bar-wrap"><div class="bar-fill" style="width:69.1%;background:var(--red)"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Safety Vest</strong></td>
+          <td><span class="badge badge-cyan">Compliant</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span>~90.1%</span>
+              <div class="bar-wrap"><div class="bar-fill" style="width:90.1%;background:var(--cyan)"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>No Safety Vest</strong></td>
+          <td><span class="badge badge-orange">Violation</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span>~83.6%</span>
+              <div class="bar-wrap"><div class="bar-fill" style="width:83.6%;background:var(--orange)"></div></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:0.72rem;color:var(--dimmed);margin-top:0.8rem;font-family:var(--font-mono);">
+    * Verified performance data for the RT-DETRv4-X model.
+  </p>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- BEFORE / AFTER -->
+<section id="demo">
+  <div class="reveal">
+    <div class="section-label">Proof of Work</div>
+    <h2>Before & <em>After</em></h2>
+    <p class="section-desc">
+      Left: raw input image. Right: model output with colour-coded bounding boxes — green/cyan for compliance, red/orange for PPE violations.
+    </p>
+  </div>
+
+  <div class="comparison-grid reveal">
+    <div class="compare-pair">
+      <div class="compare-header">
+        <span class="compare-title">Sample P1</span>
+        <span class="compare-tag tag-output">RT-DETRv4-X</span>
+      </div>
+      <div class="compare-images" style="position:relative;">
+        <div class="img-panel">
+          <img src="input_pics_videos/p1.webp" alt="Input P1" loading="lazy">
+          <span class="img-label label-before">INPUT</span>
+        </div>
+        <div class="img-panel">
+          <img src="output_pics_videos/custom_p1_annotated.jpg" alt="Output P1" loading="lazy">
+          <span class="img-label label-after">DETECTED</span>
+        </div>
+        <div class="img-divider"></div>
+      </div>
+    </div>
+
+    <div class="compare-pair">
+      <div class="compare-header">
+        <span class="compare-title">Sample P2</span>
+        <span class="compare-tag tag-output">RT-DETRv4-X</span>
+      </div>
+      <div class="compare-images" style="position:relative;">
+        <div class="img-panel">
+          <img src="input_pics_videos/p2.webp" alt="Input P2" loading="lazy">
+          <span class="img-label label-before">INPUT</span>
+        </div>
+        <div class="img-panel">
+          <img src="output_pics_videos/custom_p2_annotated.jpg" alt="Output P2" loading="lazy">
+          <span class="img-label label-after">DETECTED</span>
+        </div>
+        <div class="img-divider"></div>
+      </div>
+    </div>
+
+    <div class="compare-pair">
+      <div class="compare-header">
+        <span class="compare-title">Sample P3</span>
+        <span class="compare-tag tag-output">RT-DETRv4-X</span>
+      </div>
+      <div class="compare-images" style="position:relative;">
+        <div class="img-panel">
+          <img src="input_pics_videos/p3.webp" alt="Input P3" loading="lazy">
+          <span class="img-label label-before">INPUT</span>
+        </div>
+        <div class="img-panel">
+          <img src="output_pics_videos/custom_p3_annotated.jpg" alt="Output P3" loading="lazy">
+          <span class="img-label label-after">DETECTED</span>
+        </div>
+        <div class="img-divider"></div>
+      </div>
+    </div>
+
+    <div class="compare-pair">
+      <div class="compare-header">
+        <span class="compare-title">Sample P4</span>
+        <span class="compare-tag tag-output">RT-DETRv4-X</span>
+      </div>
+      <div class="compare-images" style="position:relative;">
+        <div class="img-panel">
+          <img src="input_pics_videos/p4.webp" alt="Input P4" loading="lazy">
+          <span class="img-label label-before">INPUT</span>
+        </div>
+        <div class="img-panel">
+          <img src="output_pics_videos/custom_p4_annotated.jpg" alt="Output P4" loading="lazy">
+          <span class="img-label label-after">DETECTED</span>
+        </div>
+        <div class="img-divider"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detection Grid -->
+  <div style="margin-top: 3rem;" class="reveal">
+    <div class="section-label">Output Grid</div>
+    <h2>Full Detection Grid</h2>
+    <p class="section-desc">All four annotated images combined into a single overview grid.</p>
+    <div class="grid-output">
+      <img src="output_pics_videos/grid.png" alt="Detection results grid" loading="lazy">
+    </div>
+  </div>
+
+</section>
+
+<div class="section-divider"></div>
+
+<!-- XAI -->
+<section id="xai">
+  <div class="reveal">
+    <div class="section-label">Explainability</div>
+    <h2>EigenCAM Heat Maps</h2>
+    <p class="section-desc">
+      EigenCAM (a Grad-CAM variant) visualises <em>where</em> the RT-DETRv4-X backbone attends when making each detection decision. Warm colours (red/yellow) indicate high activation regions — confirming the model focuses on head and torso areas as expected.
+    </p>
+  </div>
+
+  <div class="xai-grid reveal">
+    <div class="xai-card">
+      <img src="explainable_ai_heatmap_output/xai_p1.png" alt="EigenCAM heatmap for P1" loading="lazy">
+      <div class="xai-info">
+        <div class="xai-label">EigenCAM · Image 1</div>
+        <div class="xai-name">Activation Map — P1</div>
+      </div>
+    </div>
+    <div class="xai-card">
+      <img src="explainable_ai_heatmap_output/xai_p2.png" alt="EigenCAM heatmap for P2" loading="lazy">
+      <div class="xai-info">
+        <div class="xai-label">EigenCAM · Image 2</div>
+        <div class="xai-name">Activation Map — P2</div>
+      </div>
+    </div>
+    <div class="xai-card">
+      <img src="explainable_ai_heatmap_output/xai_p3.png" alt="EigenCAM heatmap for P3" loading="lazy">
+      <div class="xai-info">
+        <div class="xai-label">EigenCAM · Image 3</div>
+        <div class="xai-name">Activation Map — P3</div>
+      </div>
+    </div>
+    <div class="xai-card">
+      <img src="explainable_ai_heatmap_output/xai_p4.png" alt="EigenCAM heatmap for P4" loading="lazy">
+      <div class="xai-info">
+        <div class="xai-label">EigenCAM · Image 4</div>
+        <div class="xai-name">Activation Map — P4</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- XAI explanation callout -->
+  <div class="reveal" style="margin-top:2rem; background:var(--card); border:1px solid var(--border); border-left: 3px solid var(--amber); border-radius:12px; padding:1.4rem 1.8rem;">
+    <div style="font-family:var(--font-head);font-weight:700;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--amber);margin-bottom:0.5rem;">Why EigenCAM matters</div>
+    <p style="color:var(--muted);font-size:0.87rem;line-height:1.7;">
+      Deep learning models are often treated as black boxes. EigenCAM makes the decisions transparent by showing the spatial regions the model's convolutional backbone activates on. For a safety-critical system like PPE detection, this interpretability layer is essential — it validates the model isn't relying on spurious correlations (e.g. background colour) but genuinely attends to helmet and vest regions.
+    </p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- FILES MANIFEST -->
+<section>
+  <div class="reveal">
+    <div class="section-label">Output Artefacts</div>
+    <h2>Generated Files</h2>
+    <p class="section-desc">All deliverables produced after running both notebooks end-to-end.</p>
+  </div>
+
+  <div class="reveal" style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+    <table class="class-table">
+      <thead>
+        <tr><th>File</th><th>Type</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cyan)">weight/best.pt</code></td><td><span class="badge badge-amber">Model</span></td><td>Best checkpoint — lowest validation loss</td></tr>
+        <tr><td><code style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cyan)">output_pics_videos/custom_p[1–4]_annotated.jpg</code></td><td><span class="badge badge-green">Images</span></td><td>Annotated test images with bounding boxes</td></tr>
+        <tr><td><code style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cyan)">output_pics_videos/grid.png</code></td><td><span class="badge badge-green">Images</span></td><td>2×2 grid of all annotated outputs</td></tr>
+        <tr><td><code style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cyan)">output_pics_videos/input_video_annotated_h264.mp4</code></td><td><span class="badge badge-cyan">Video</span></td><td>H.264 annotated video output</td></tr>
+        <tr><td><code style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cyan)">explainable_ai_heatmap_output/xai_p[1–4].png</code></td><td><span class="badge badge-orange">XAI</span></td><td>EigenCAM activation maps per input image</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="reveal">
+    <div class="section-label">Tech Stack</div>
+    <h2>Tools & <em>Libraries</em></h2>
+    <p class="section-desc">Every component was chosen for speed, reproducibility, and state-of-the-art performance.</p>
+  </div>
+
+  <div class="tools-grid reveal">
+    <div class="tool-card" style="--accent: #ef4444">
+      <span class="tool-icon">🤗</span>
+      <div class="tool-name">RT-DETRv4-X</div>
+      <div class="tool-role">Primary Model</div>
+      <div class="tool-desc">Real-Time DEtection TRansformer (X-large variant). Combines transformer attention with CNN backbone for high-accuracy real-time detection without NMS overhead.</div>
+    </div>
+    <div class="tool-card" style="--accent: #ee4c2c">
+      <span class="tool-icon">🔥</span>
+      <div class="tool-name">PyTorch</div>
+      <div class="tool-role">Deep Learning Framework</div>
+      <div class="tool-desc">FP16 mixed precision (AMP), AdamW optimiser, cosine LR scheduling, 3-epoch warmup, and early stopping. Runs on CUDA T4 GPU.</div>
+    </div>
+    <div class="tool-card" style="--accent: #1ca8fb">
+      <span class="tool-icon">⚡</span>
+      <div class="tool-name">Ultralytics</div>
+      <div class="tool-role">Training API</div>
+      <div class="tool-desc">High-level wrapper used for model.train(), model.val(), model.predict(). Handles YAML config, checkpointing, and results.csv logging automatically.</div>
+    </div>
+    <div class="tool-card" style="--accent: #7c3aed">
+      <span class="tool-icon">👁️</span>
+      <div class="tool-name">Supervision</div>
+      <div class="tool-role">Annotation Utilities</div>
+      <div class="tool-desc">Bounding box drawing, label rendering, and colour-coded annotations on images and video frames.</div>
+    </div>
+    <div class="tool-card" style="--accent: #22c55e">
+      <span class="tool-icon">🌡️</span>
+      <div class="tool-name">EigenCAM</div>
+      <div class="tool-role">Explainable AI (XAI)</div>
+      <div class="tool-desc">Grad-CAM variant applied via pytorch-grad-cam. Produces per-class heat maps showing which image regions drive each detection decision.</div>
+    </div>
+    <div class="tool-card" style="--accent: #f59e0b">
+      <span class="tool-icon">🏗️</span>
+      <div class="tool-name">Google Colab</div>
+      <div class="tool-role">Training Environment</div>
+      <div class="tool-desc">NVIDIA T4 GPU runtime. Models and outputs persisted to Google Drive. kaggle.json for dataset download via Kaggle API.</div>
+    </div>
+    <div class="tool-card" style="--accent: #06b6d4">
+      <span class="tool-icon">📦</span>
+      <div class="tool-name">OpenCV</div>
+      <div class="tool-role">Video Processing</div>
+      <div class="tool-desc">Frame-by-frame inference on input video. BGR → RGB conversion, bounding box rendering, and H.264 mp4 export.</div>
+    </div>
+    <div class="tool-card" style="--accent: #f97316">
+      <span class="tool-icon">📐</span>
+      <div class="tool-name">scikit-learn</div>
+      <div class="tool-role">Evaluation Metrics</div>
+      <div class="tool-desc">Per-class Precision, Recall, F1, MCC, and confusion matrix computed from inference results on the held-out test split.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Built with <strong>RT-DETRv4-X</strong> · Developed by <strong>Athithya Krishnaa</strong> &nbsp;|&nbsp; 
+  Dataset: <a href="https://www.kaggle.com/datasets/athithyakrishnaa/ppe-clean-dataset" target="_blank" style="color:var(--amber);text-decoration:none;font-weight:600;">PPE Clean Dataset (Kaggle)</a>
+</footer>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" class="lightbox">
+  <button id="lightbox-close" title="Close">&times;</button>
+  <img src="" alt="Fullscreen view">
+</div>
+

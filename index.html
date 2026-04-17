@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PPE Detection System with Explainable AI for Industrial Safety</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400;1,400;1,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #fffcf7;
+    --surface:  #ffffff;
+    --accent-main: #D87707;
+    --card:     rgba(0, 0, 0, 0.02);
+    --card2:    rgba(0, 0, 0, 0.04);
+    --border:   rgba(0, 0, 0, 0.06);
+    --border2:  rgba(0, 0, 0, 0.1);
+    --amber:    #d97706; /* Darker amber for contrast */
+    --amber2:   #f59e0b;
+    --green:    #10b981;
+    --red:      #ef4444;
+    --cyan:     #0ea5e9;
+    --orange:   #f97316;
+    --text:     #0f172a;
+    --muted:    #475569;
+    --dimmed:   #94a3b8;
+    --font-head: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+    --font-italic: 'Playfair Display', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --radius-lg: 32px;
+    --radius-md: 20px;
+    --radius-sm: 12px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: linear-gradient(90deg, #ffffff 0%, #fffbf5 50%, #fff5e6 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.65;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ── NAV REMOVED ── */
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    text-align: center;
+    padding: 4rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(217, 119, 6, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(14, 165, 233, 0.05) 0%, transparent 50%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(15, 23, 42, 0.02) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(15, 23, 42, 0.02) 40px);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(240,180,41,0.12);
+    border: 1px solid rgba(240,180,41,0.3);
+    border-radius: 999px;
+    padding: 6px 18px;
+    font-size: 0.75rem; font-family: var(--font-mono);
+    color: var(--amber2); letter-spacing: 0.05em;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-badge::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  .hero h1 {
+    font-family: var(--font-head);
+    font-size: clamp(3rem, 10vw, 7.5rem);
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: var(--text);
+    margin-bottom: 0.4em;
+    animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .hero h1 em { 
+    color: var(--amber); 
+    font-style: italic; 
+    font-family: var(--font-italic);
+    font-weight: 400;
+    font-size: 1.1em;
+  }
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    color: var(--muted);
+    max-width: 600px;
+    margin: 0 auto 3rem;
+    animation: fadeUp 0.7s 0.2s ease both;
+    font-weight: 300;
+  }
+
+  .hero-stats {
+    display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.7s 0.3s ease both;
+  }
+  .stat-pill {
+    background: #ffffff;
+    box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-md);
+    padding: 1.2rem 2.2rem;
+    text-align: center;
+    min-width: 140px;
+    transition: transform 0.3s ease, background 0.3s ease;
+  }
+  .stat-pill:hover {
+    transform: translateY(-5px) scale(1.02);
+    background: var(--card2);
+  }
+  .stat-pill .val {
+    font-family: var(--font-head);
+    font-size: 2.5rem; font-weight: 800;
+    line-height: 1;
+    color: var(--amber);
+    font-style: italic;
+  }
+  .stat-pill .lbl {
+    font-size: 0.75rem; color: var(--muted);
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-top: 8px; font-family: var(--font-head); font-weight: 600;
+  }
+
+  /* ── SECTIONS ── */
+  section { padding: 5rem 2rem; max-width: 1200px; margin: 0 auto; }
+  section.full { max-width: none; padding: 5rem 0; }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem; letter-spacing: 0.15em;
+    color: var(--amber); text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after { content: ''; flex: 0 0 40px; height: 1px; background: var(--amber); opacity: 0.5; }
+
+  h2 {
+    font-family: var(--font-head);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700; color: var(--text);
+    line-height: 1.1; margin-bottom: 1.2rem;
+    letter-spacing: -0.02em;
+  }
+  h2 em {
+    font-family: var(--font-italic);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--amber);
+  }
+  .section-desc { color: var(--muted); max-width: 620px; font-size: 0.95rem; margin-bottom: 3rem; }
+
+  /* ── PIPELINE ── */
+  .pipeline {
+    display: flex; align-items: stretch; gap: 0;
+    overflow-x: auto; padding-bottom: 1rem;
+  }
+  .pipe-step {
+    flex: 1; min-width: 180px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    padding: 2rem 1.5rem;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+  }
+  .pipe-step:hover { 
+    background: var(--card2); 
+    border-color: var(--amber); 
+    transform: translateY(-8px);
+    z-index: 10;
+  }
+  .pipe-step:not(:last-child)::after {
+    content: '→';
+    position: absolute; right: -15px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--amber); font-size: 1.5rem; z-index: 2;
+    background: var(--bg); border-radius: 50%; width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border);
+  }
+  .pipe-step:first-child { border-radius: var(--radius-lg) 0 0 var(--radius-lg); }
+  .pipe-step:last-child  { border-radius: 0 var(--radius-lg) var(--radius-lg) 0; }
+  .pipe-num {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    color: var(--amber); letter-spacing: 0.15em;
+    margin-bottom: 0.8rem; opacity: 0.8;
+  }
+  .pipe-icon {
+    font-size: 2rem; margin-bottom: 1rem; display: block;
+    filter: drop-shadow(0 0 8px rgba(240,180,41,0.3));
+  }
+  .pipe-title {
+    font-family: var(--font-head); font-weight: 800;
+    font-size: 1rem; color: var(--text);
+    margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;
+    font-style: italic;
+  }
+  .pipe-detail { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── TOOLS GRID ── */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .tool-card {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 2rem;
+    transition: all 0.3s ease;
+    position: relative; overflow: hidden;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+  }
+  .tool-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--accent, var(--amber));
+    opacity: 0.6;
+  }
+  .tool-card:hover { 
+    border-color: var(--accent, var(--amber)); 
+    transform: translateY(-5px);
+    background: var(--card2);
+  }
+  .tool-card .tool-icon { font-size: 2.2rem; margin-bottom: 1rem; display: block; }
+  .tool-card .tool-name {
+    font-family: var(--font-head); font-weight: 800;
+    font-size: 1.1rem; color: var(--text);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+    font-style: italic;
+  }
+  .tool-card .tool-role { font-size: 0.8rem; color: var(--amber); font-family: var(--font-mono); margin-bottom: 0.8rem; }
+  .tool-card .tool-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── CLASS LEGEND ── */
+  .class-legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem; margin-bottom: 3rem;
+  }
+  .class-chip {
+    display: flex; align-items: center; gap: 15px;
+    background: #ffffff; border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: 1.2rem 1.5rem;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 15px -5px rgba(0,0,0,0.05);
+  }
+  .class-chip:hover { transform: scale(1.05); }
+  .class-dot {
+    width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+    box-shadow: 0 0 10px currentColor;
+  }
+  .class-id { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+  .class-name { font-family: var(--font-head); font-weight: 800; font-size: 1rem; color: var(--text); font-style: italic; }
+
+  /* ── BEFORE / AFTER ── */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+    gap: 2rem;
+  }
+  .compare-pair {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg); overflow: hidden;
+    transition: border-color 0.3s ease;
+    box-shadow: 0 20px 40px -15px rgba(0,0,0,0.08);
+  }
+  .compare-pair:hover { border-color: var(--amber); }
+  .compare-header {
+    padding: 1rem 1.4rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-title { font-family: var(--font-head); font-weight: 700; font-size: 1rem; color: var(--text); text-transform: uppercase; letter-spacing: 0.05em; }
+  .compare-tag {
+    font-size: 0.7rem; font-family: var(--font-mono);
+    padding: 3px 10px; border-radius: 999px;
+  }
+  .tag-input  { background: rgba(34,211,238,0.12); color: var(--cyan); border: 1px solid rgba(34,211,238,0.25); }
+  .tag-output { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+
+  .compare-images {
+    display: grid; grid-template-columns: 1fr 1fr;
+  }
+  .img-panel { position: relative; }
+  .img-panel img {
+    width: 100%; height: 260px;
+    object-fit: cover; display: block;
+    background: #0a1520;
+  }
+  .img-label {
+    position: absolute; bottom: 8px; left: 8px;
+    font-size: 0.65rem; font-family: var(--font-mono);
+    padding: 3px 8px; border-radius: 4px;
+    backdrop-filter: blur(4px);
+  }
+  .label-before { background: #ffffff; color: var(--muted); border: 1px solid var(--border); }
+  .label-after  { background: rgba(34,197,94,0.25); color: var(--green); border: 1px solid rgba(34,197,94,0.4); }
+  .img-divider {
+    width: 2px; background: var(--amber); opacity: 0.5;
+    position: absolute; top: 0; bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  /* ── XAI ── */
+  .xai-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.2rem;
+  }
+  .xai-card {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md); overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px -10px rgba(0,0,0,0.06);
+  }
+  .xai-card:hover { border-color: var(--amber); transform: scale(1.02); }
+  .xai-card img {
+    width: 100%; height: 220px;
+    object-fit: cover; display: block;
+    background: #0a1520;
+  }
+  .xai-info { padding: 1rem 1.2rem; }
+  .xai-info .xai-label {
+    font-size: 0.68rem; font-family: var(--font-mono);
+    color: var(--amber); letter-spacing: 0.08em; margin-bottom: 4px;
+  }
+  .xai-info .xai-name { font-family: var(--font-head); font-weight: 700; font-size: 0.95rem; color: var(--text); }
+
+  /* ── METRICS ── */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem; margin-bottom: 2.5rem;
+  }
+  .metric-card {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: 1.8rem 1.4rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative; overflow: hidden;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+  }
+  .metric-card:hover { border-color: var(--amber); transform: translateY(-5px); }
+  .metric-card .m-val {
+    font-family: var(--font-head); font-size: 2.4rem;
+    font-weight: 700; line-height: 1; color: var(--amber);
+  }
+  .metric-card .m-lbl {
+    font-size: 0.7rem; color: var(--muted);
+    letter-spacing: 0.1em; text-transform: uppercase;
+    font-family: var(--font-head); font-weight: 600;
+    margin-top: 6px;
+  }
+  .metric-card .m-sub {
+    font-size: 0.75rem; color: var(--dimmed);
+    font-family: var(--font-mono); margin-top: 4px;
+  }
+
+  /* ── CLASS TABLE ── */
+  .class-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .class-table th {
+    font-family: var(--font-head); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    font-size: 0.7rem; color: var(--muted);
+    padding: 0.6rem 1rem; text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .class-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text);
+  }
+  .class-table tr:last-child td { border-bottom: none; }
+  .class-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 10px; border-radius: 999px;
+    font-size: 0.7rem; font-family: var(--font-mono);
+    font-weight: 500;
+  }
+  .badge-green  { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-red    { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-cyan   { background: rgba(34,211,238,0.15); color: var(--cyan); border: 1px solid rgba(34,211,238,0.3); }
+  .badge-orange { background: rgba(251,146,60,0.15); color: var(--orange); border: 1px solid rgba(251,146,60,0.3); }
+  .badge-amber  { background: rgba(240,180,41,0.15); color: var(--amber2); border: 1px solid rgba(240,180,41,0.3); }
+
+  /* progress bar */
+  .bar-wrap { width: 100%; background: rgba(255,255,255,0.06); border-radius: 999px; height: 6px; min-width: 80px; }
+  .bar-fill  { height: 6px; border-radius: 999px; background: var(--amber); }
+
+  /* ── VIDEO SECTION ── */
+  .video-wrapper {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg); overflow: hidden;
+    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.15);
+  }
+  .video-header {
+    padding: 1.2rem 1.6rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .video-header .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .video-header h3 { font-family: var(--font-head); font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text); margin-left: auto; margin-right: auto; }
+  video {
+    width: 100%; display: block; max-height: 520px;
+    object-fit: contain; background: #f1f5f9;
+  }
+
+  /* ── GRID OUTPUT ── */
+  .grid-output img {
+    width: 100%; border-radius: 12px;
+    border: 1px solid var(--border);
+    display: block;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem;
+    text-align: center;
+    color: var(--dimmed);
+    font-size: 0.78rem;
+    font-family: var(--font-mono);
+  }
+  footer strong { color: var(--amber); }
+
+  /* ── DIVIDER ── */
+  .section-divider {
+    height: 1px; background: var(--border);
+    max-width: 1200px; margin: 0 auto;
+  }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* ── LIGHTBOX ── */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 10000;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(15px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .lightbox.active { opacity: 1; pointer-events: auto; }
+  .lightbox img { 
+    max-width: 90vw; max-height: 85vh; 
+    border-radius: var(--radius-lg); 
+    box-shadow: 0 40px 100px -20px rgba(0,0,0,0.2);
+    transform: scale(0.9); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .lightbox.active img { transform: scale(1); }
+  #lightbox-close {
+    position: absolute; top: 30px; right: 30px;
+    background: var(--text); color: var(--bg); border: none; 
+    border-radius: 50%; width: 50px; height: 50px; 
+    font-size: 1.8rem; cursor: pointer; 
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+  }
+  #lightbox-close:hover { transform: scale(1.1) rotate(90deg); }
+  img { cursor: zoom-in; }
+
+  /* -- DATASET SECTION -- */
+  .dataset-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    align-items: start;
+    margin-top: 2rem;
+  }
+  .yaml-config {
+    background: #1e1e1e;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15);
+  }
+  .yaml-header {
+    background: #2d2d2d;
+    padding: 0.8rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  .yaml-header .dots { display: flex; gap: 6px; }
+  .yaml-header .dots span { width: 10px; height: 10px; border-radius: 50%; }
+  .yaml-title { font-family: var(--font-mono); font-size: 0.75rem; color: #a5a5a5; flex-grow: 1; text-align: center; margin-right: 46px; }
+  .yaml-content { padding: 1.5rem; margin: 0; color: #d4d4d4; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; }
+  
+  .dist-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .dist-card {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px -5px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+  }
+  .dist-card:hover { transform: translateX(10px); }
+  .dist-header {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-style: italic;
+  }
+  .dist-header .count { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 400; font-style: normal; color: var(--muted); }
+  .dist-body { display: flex; flex-direction: column; gap: 10px; }
+  .dist-row { display: grid; grid-template-columns: 100px 1fr 50px; align-items: center; gap: 15px; }
+  .dist-row .lbl { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+  .dist-row .val { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text); text-align: right; }
+
+  @media (max-width: 1024px) {
+    .dataset-container { grid-template-columns: 1fr; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    section { padding: 3.5rem 1.2rem; }
+    .comparison-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 1rem; }
+    .pipe-step:not(:last-child)::after { display: none; }
+    .pipeline { flex-direction: column; }
+    .pipe-step { border-radius: var(--radius-md) !important; }
+    .compare-images { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- NAV REMOVED -->
+
+<!-- HERO -->
+<div class="hero" id="overview">
+
+  <h1>PPE Detection<br><em>System</em><br><span style="font-size: 0.4em; display: block; margin-top: 0.2em; font-weight: 500; letter-spacing: 0.05em; color: var(--muted); text-transform: uppercase;">With Explainable AI for Industrial Safety</span></h1>
+  <p class="hero-sub">
+    Automated detection of Personal Protective Equipment on construction sites using a state-of-the-art transformer-based object detector.
+  </p>
+  <div class="hero-stats">
+    <div class="stat-pill">
+      <div class="val">~84.1%</div>
+      <div class="lbl">mAP@50</div>
+    </div>
+    <div class="stat-pill">
+      <div class="val">~55.1%</div>
+      <div class="lbl">mAP@50:95</div>
+    </div>
+    <div class="stat-pill">
+      <div class="val">12.5</div>
+      <div class="lbl">FPS</div>
+    </div>
+  </div>
+</div>
+
+<!-- DIVIDER -->
+<div class="section-divider"></div>
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="reveal">
+    <div class="section-label">Workflow</div>
+    <h2>End-to-End <em>Pipeline</em></h2>
+    <p class="section-desc">
+      Two Colab notebooks cover the full lifecycle — from raw Kaggle data to an explainable, annotated output.
+    </p>
+  </div>
+
+  <div class="pipeline reveal">
+    <div class="pipe-step">
+      <div class="pipe-num">01 / TRAINING</div>
+      <span class="pipe-icon">⚙️</span>
+      <div class="pipe-title">Environment Setup</div>
+      <div class="pipe-detail">Install Ultralytics, Supervision, PyTorch. Verify T4 GPU. Mount Google Drive.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">02 / TRAINING</div>
+      <span class="pipe-icon">🗂️</span>
+      <div class="pipe-title">Dataset Prep</div>
+      <div class="pipe-detail">Download <a href="https://www.kaggle.com/datasets/athithyakrishnaa/ppe-clean-dataset" target="_blank" style="color: var(--amber); text-decoration: none; font-weight: 600;">PPE Clean Dataset</a> from Kaggle. Filter 4 PPE classes. Remap label IDs. Write YAML manifest.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">03 / TRAINING</div>
+      <span class="pipe-icon">🧠</span>
+      <div class="pipe-title">Train RT-DETRv4-X</div>
+      <div class="pipe-detail">AdamW + cosine LR + FP16. 15 epochs, 640px. Checkpoints saved to Drive.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">04 / TRAINING</div>
+      <span class="pipe-icon">📊</span>
+      <div class="pipe-title">Evaluate</div>
+      <div class="pipe-detail">mAP, per-class AP, precision, recall, F1, MCC. FPS benchmark on T4 GPU.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">05 / TESTING</div>
+      <span class="pipe-icon">🎬</span>
+      <div class="pipe-title">Video & Image Inference</div>
+      <div class="pipe-detail">Custom images + video. Annotated outputs with colour-coded bounding boxes.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">06 / TESTING</div>
+      <span class="pipe-icon">🔥</span>
+      <div class="pipe-title">Explainable AI</div>
+      <div class="pipe-detail">EigenCAM heatmaps per class — visualises where the model looks to decide.</div>
+    </div>
+  </div>
+</section>
+
+
+<div class="section-divider"></div>
+
+<!-- DATASET -->
+<section id="dataset">
+  <div class="reveal">
+    <div class="section-label">Data Architecture</div>
+    <h2>Dataset <em>Overview</em></h2>
+    <p class="section-desc">
+      The model is trained on a curated PPE dataset with a multi-split architecture ensuring robust validation and testing across thousands of annotated instances.
+    </p>
+  </div>
+
+  <div class="dataset-container reveal">
+    <!-- YAML Config -->
+    <div class="yaml-config">
+      <div class="yaml-header">
+        <div class="dots"><span style="background:#ff5f56"></span><span style="background:#ffbd2e"></span><span style="background:#27c93f"></span></div>
+        <div class="yaml-title">ppe_data.yaml</div>
+      </div>
+      <pre class="yaml-content"><code>path: /content/dataset
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 4
+names:
+  - Helmet
+  - No Helmet
+  - Safety Vest
+  - No Safety Vest</code></pre>
+    </div>
+
+    <!-- Distribution Tabs/Grid -->
+    <div class="dist-grid">
+      <!-- Train -->
+      <div class="dist-card">
+        <div class="dist-header">TRAIN SPLIT <span class="count">12,457 Total Labels</span></div>
+        <div class="dist-body">
+          <div class="dist-row"><span class="lbl">Helmet</span><div class="bar-wrap"><div class="bar-fill" style="width: 25.2%; background: #22c55e;"></div></div><span class="val">3,145</span></div>
+          <div class="dist-row"><span class="lbl">No Helmet</span><div class="bar-wrap"><div class="bar-fill" style="width: 18.6%; background: #ef4444;"></div></div><span class="val">2,317</span></div>
+          <div class="dist-row"><span class="lbl">Safety Vest</span><div class="bar-wrap"><div class="bar-fill" style="width: 24.3%; background: #22d3ee;"></div></div><span class="val">3,033</span></div>
+          <div class="dist-row"><span class="lbl">No Safety Vest</span><div class="bar-wrap"><div class="bar-fill" style="width: 31.8%; background: #fb923c;"></div></div><span class="val">3,962</span></div>
+        </div>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <!-- Valid -->
+        <div class="dist-card">
+          <div class="dist-header">VALID <span class="count">295 Labels</span></div>
+          <div class="dist-body">
+            <div class="dist-row"><span class="lbl">Helmet</span><div class="bar-wrap"><div class="bar-fill" style="width: 26.8%; background: #22c55e;"></div></div><span class="val">79</span></div>
+            <div class="dist-row"><span class="lbl">No Helmet</span><div class="bar-wrap"><div class="bar-fill" style="width: 23.4%; background: #ef4444;"></div></div><span class="val">69</span></div>
+            <div class="dist-row"><span class="lbl">Vest</span><div class="bar-wrap"><div class="bar-fill" style="width: 13.9%; background: #22d3ee;"></div></div><span class="val">41</span></div>
+            <div class="dist-row"><span class="lbl">No Vest</span><div class="bar-wrap"><div class="bar-fill" style="width: 35.9%; background: #fb923c;"></div></div><span class="val">106</span></div>
+          </div>
+        </div>
+        <!-- Test -->
+        <div class="dist-card">
+          <div class="dist-header">TEST <span class="count">302 Labels</span></div>
+          <div class="dist-body">
+            <div class="dist-row"><span class="lbl">Helmet</span><div class="bar-wrap"><div class="bar-fill" style="width: 36.4%; background: #22c55e;"></div></div><span class="val">110</span></div>
+            <div class="dist-row"><span class="lbl">No Helmet</span><div class="bar-wrap"><div class="bar-fill" style="width: 13.6%; background: #ef4444;"></div></div><span class="val">41</span></div>
+            <div class="dist-row"><span class="lbl">Vest</span><div class="bar-wrap"><div class="bar-fill" style="width: 20.2%; background: #22d3ee;"></div></div><span class="val">61</span></div>
+            <div class="dist-row"><span class="lbl">No Vest</span><div class="bar-wrap"><div class="bar-fill" style="width: 29.8%; background: #fb923c;"></div></div><span class="val">90</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+
+
+<!-- CLASSES -->
+<section id="results">
+  <div class="reveal">
+    <div class="section-label">Detection Classes</div>
+    <h2>What the Model <em>Detects</em></h2>
+    <p class="section-desc">Four PPE classes, colour-coded by compliance status — green for wearing, red/orange for violations.</p>
+  </div>
+
+  <div class="class-legend reveal">
+    <div class="class-chip">
+      <div class="class-dot" style="background: #22c55e;"></div>
+      <div>
+        <div class="class-id">CLASS 0</div>
+        <div class="class-name">Helmet</div>
+      </div>
+    </div>
+    <div class="class-chip">
+      <div class="class-dot" style="background: #ef4444;"></div>
+      <div>
+        <div class="class-id">CLASS 1</div>
+        <div class="class-name">No Helmet</div>
+      </div>
+    </div>
+    <div class="class-chip">
+      <div class="class-dot" style="background: #22d3ee;"></div>
+      <div>
+        <div class="class-id">CLASS 2</div>
+        <div class="class-name">Safety Vest</div>
+      </div>
+    </div>
+    <div class="class-chip">
+      <div class="class-dot" style="background: #fb923c;"></div>
+      <div>
+        <div class="class-id">CLASS 3</div>
+        <div class="class-name">No Safety Vest</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="reveal">
+    <div class="section-label" style="margin-top: 1rem;">Performance</div>
+    <h2>Model <em>Metrics</em></h2>
+    <p class="section-desc">Evaluated on the held-out test split at conf = 0.5, image size 640px.</p>
+  </div>
+
+  <div class="metrics-grid reveal">
+    <div class="metric-card">
+      <div class="m-val">~84.1%</div>
+      <div class="m-lbl">mAP@50</div>
+      <div class="m-sub">Detection accuracy</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-val">~66.1%</div>
+      <div class="m-lbl">mAP@75</div>
+      <div class="m-sub">Stricter IoU</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-val">~55.1%</div>
+      <div class="m-lbl">mAP@50:95</div>
+      <div class="m-sub">COCO standard</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-val">12.51</div>
+      <div class="m-lbl">FPS</div>
+      <div class="m-sub">Real-time performance</div>
+    </div>
+  </div>
+
+  <div class="reveal" style="background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;">
+    <table class="class-table">
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Status</th>
+          <th>Average Precision (AP)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Helmet</strong></td>
+          <td><span class="badge badge-green">Compliant</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span>~93.6%</span>
+              <div class="bar-wrap"><div class="bar-fill" style="width:93.6%;background:var(--green)"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>No Helmet</strong></td>
+          <td><span class="badge badge-red">Violation</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span>~69.1%</span>
+              <div class="bar-wrap"><div class="bar-fill" style="width:69.1%;background:var(--red)"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Safety Vest</strong></td>
+          <td><span class="badge badge-cyan">Compliant</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span>~90.1%</span>
+              <div class="bar-wrap"><div class="bar-fill" style="width:90.1%;background:var(--cyan)"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>No Safety Vest</strong></td>
+          <td><span class="badge badge-orange">Violation</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span>~83.6%</span>
+              <div class="bar-wrap"><div class="bar-fill" style="width:83.6%;background:var(--orange)"></div></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:0.72rem;color:var(--dimmed);margin-top:0.8rem;font-family:var(--font-mono);">
+    * Verified performance data for the RT-DETRv4-X model.
+  </p>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- BEFORE / AFTER -->
+<section id="demo">
+  <div class="reveal">
+    <div class="section-label">Proof of Work</div>
+    <h2>Before & <em>After</em></h2>
+    <p class="section-desc">
+      Left: raw input image. Right: model output with colour-coded bounding boxes — green/cyan for compliance, red/orange for PPE violations.
+    </p>
+  </div>
+
+  <div class="comparison-grid reveal">
+    <div class="compare-pair">
+      <div class="compare-header">
+        <span class="compare-title">Sample P1</span>
+        <span class="compare-tag tag-output">RT-DETRv4-X</span>
+      </div>
+      <div class="compare-images" style="position:relative;">
+        <div class="img-panel">
+          <img src="input_pics_videos/p1.webp" alt="Input P1" loading="lazy">
+          <span class="img-label label-before">INPUT</span>
+        </div>
+        <div class="img-panel">
+          <img src="output_pics_videos/custom_p1_annotated.jpg" alt="Output P1" loading="lazy">
+          <span class="img-label label-after">DETECTED</span>
+        </div>
+        <div class="img-divider"></div>
+      </div>
+    </div>
+
+    <div class="compare-pair">
+      <div class="compare-header">
+        <span class="compare-title">Sample P2</span>
+        <span class="compare-tag tag-output">RT-DETRv4-X</span>
+      </div>
+      <div class="compare-images" style="position:relative;">
+        <div class="img-panel">
+          <img src="input_pics_videos/p2.webp" alt="Input P2" loading="lazy">
+          <span class="img-label label-before">INPUT</span>
+        </div>
+        <div class="img-panel">
+          <img src="output_pics_videos/custom_p2_annotated.jpg" alt="Output P2" loading="lazy">
+          <span class="img-label label-after">DETECTED</span>
+        </div>
+        <div class="img-divider"></div>
+      </div>
+    </div>
+
+    <div class="compare-pair">
+      <div class="compare-header">
+        <span class="compare-title">Sample P3</span>
+        <span class="compare-tag tag-output">RT-DETRv4-X</span>
+      </div>
+      <div class="compare-images" style="position:relative;">
+        <div class="img-panel">
+          <img src="input_pics_videos/p3.webp" alt="Input P3" loading="lazy">
+          <span class="img-label label-before">INPUT</span>
+        </div>
+        <div class="img-panel">
+          <img src="output_pics_videos/custom_p3_annotated.jpg" alt="Output P3" loading="lazy">
+          <span class="img-label label-after">DETECTED</span>
+        </div>
+        <div class="img-divider"></div>
+      </div>
+    </div>
+
+    <div class="compare-pair">
+      <div class="compare-header">
+        <span class="compare-title">Sample P4</span>
+        <span class="compare-tag tag-output">RT-DETRv4-X</span>
+      </div>
+      <div class="compare-images" style="position:relative;">
+        <div class="img-panel">
+          <img src="input_pics_videos/p4.webp" alt="Input P4" loading="lazy">
+          <span class="img-label label-before">INPUT</span>
+        </div>
+        <div class="img-panel">
+          <img src="output_pics_videos/custom_p4_annotated.jpg" alt="Output P4" loading="lazy">
+          <span class="img-label label-after">DETECTED</span>
+        </div>
+        <div class="img-divider"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detection Grid -->
+  <div style="margin-top: 3rem;" class="reveal">
+    <div class="section-label">Output Grid</div>
+    <h2>Full Detection Grid</h2>
+    <p class="section-desc">All four annotated images combined into a single overview grid.</p>
+    <div class="grid-output">
+      <img src="output_pics_videos/grid.png" alt="Detection results grid" loading="lazy">
+    </div>
+  </div>
+
+  <!-- VIDEO -->
+  <div style="margin-top: 3rem;" class="reveal">
+    <div class="section-label">Video Inference</div>
+    <h2>Annotated Output Video</h2>
+    <p class="section-desc">Real-time PPE detection across every frame. Bounding boxes drawn at ≥ 0.45 confidence threshold.</p>
+    <div class="video-wrapper">
+      <div class="video-header">
+        <div class="dot" style="background:#ef4444"></div>
+        <div class="dot" style="background:#f0b429"></div>
+        <div class="dot" style="background:#22c55e"></div>
+        <h3>input_video_annotated_h264.mp4</h3>
+      </div>
+      <video controls preload="metadata" loop>
+        <source src="output_pics_videos/input_video_annotated_h264.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- XAI -->
+<section id="xai">
+  <div class="reveal">
+    <div class="section-label">Explainability</div>
+    <h2>EigenCAM Heat Maps</h2>
+    <p class="section-desc">
+      EigenCAM (a Grad-CAM variant) visualises <em>where</em> the RT-DETRv4-X backbone attends when making each detection decision. Warm colours (red/yellow) indicate high activation regions — confirming the model focuses on head and torso areas as expected.
+    </p>
+  </div>
+
+  <div class="xai-grid reveal">
+    <div class="xai-card">
+      <img src="explainable_ai_heatmap_output/xai_p1.png" alt="EigenCAM heatmap for P1" loading="lazy">
+      <div class="xai-info">
+        <div class="xai-label">EigenCAM · Image 1</div>
+        <div class="xai-name">Activation Map — P1</div>
+      </div>
+    </div>
+    <div class="xai-card">
+      <img src="explainable_ai_heatmap_output/xai_p2.png" alt="EigenCAM heatmap for P2" loading="lazy">
+      <div class="xai-info">
+        <div class="xai-label">EigenCAM · Image 2</div>
+        <div class="xai-name">Activation Map — P2</div>
+      </div>
+    </div>
+    <div class="xai-card">
+      <img src="explainable_ai_heatmap_output/xai_p3.png" alt="EigenCAM heatmap for P3" loading="lazy">
+      <div class="xai-info">
+        <div class="xai-label">EigenCAM · Image 3</div>
+        <div class="xai-name">Activation Map — P3</div>
+      </div>
+    </div>
+    <div class="xai-card">
+      <img src="explainable_ai_heatmap_output/xai_p4.png" alt="EigenCAM heatmap for P4" loading="lazy">
+      <div class="xai-info">
+        <div class="xai-label">EigenCAM · Image 4</div>
+        <div class="xai-name">Activation Map — P4</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- XAI explanation callout -->
+  <div class="reveal" style="margin-top:2rem; background:var(--card); border:1px solid var(--border); border-left: 3px solid var(--amber); border-radius:12px; padding:1.4rem 1.8rem;">
+    <div style="font-family:var(--font-head);font-weight:700;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--amber);margin-bottom:0.5rem;">Why EigenCAM matters</div>
+    <p style="color:var(--muted);font-size:0.87rem;line-height:1.7;">
+      Deep learning models are often treated as black boxes. EigenCAM makes the decisions transparent by showing the spatial regions the model's convolutional backbone activates on. For a safety-critical system like PPE detection, this interpretability layer is essential — it validates the model isn't relying on spurious correlations (e.g. background colour) but genuinely attends to helmet and vest regions.
+    </p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- FILES MANIFEST -->
+<section>
+  <div class="reveal">
+    <div class="section-label">Output Artefacts</div>
+    <h2>Generated Files</h2>
+    <p class="section-desc">All deliverables produced after running both notebooks end-to-end.</p>
+  </div>
+
+  <div class="reveal" style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+    <table class="class-table">
+      <thead>
+        <tr><th>File</th><th>Type</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cyan)">weight/best.pt</code></td><td><span class="badge badge-amber">Model</span></td><td>Best checkpoint — lowest validation loss</td></tr>
+        <tr><td><code style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cyan)">output_pics_videos/custom_p[1–4]_annotated.jpg</code></td><td><span class="badge badge-green">Images</span></td><td>Annotated test images with bounding boxes</td></tr>
+        <tr><td><code style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cyan)">output_pics_videos/grid.png</code></td><td><span class="badge badge-green">Images</span></td><td>2×2 grid of all annotated outputs</td></tr>
+        <tr><td><code style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cyan)">output_pics_videos/input_video_annotated_h264.mp4</code></td><td><span class="badge badge-cyan">Video</span></td><td>H.264 annotated video output</td></tr>
+        <tr><td><code style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cyan)">explainable_ai_heatmap_output/xai_p[1–4].png</code></td><td><span class="badge badge-orange">XAI</span></td><td>EigenCAM activation maps per input image</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="reveal">
+    <div class="section-label">Tech Stack</div>
+    <h2>Tools & <em>Libraries</em></h2>
+    <p class="section-desc">Every component was chosen for speed, reproducibility, and state-of-the-art performance.</p>
+  </div>
+
+  <div class="tools-grid reveal">
+    <div class="tool-card" style="--accent: #ef4444">
+      <span class="tool-icon">🤗</span>
+      <div class="tool-name">RT-DETRv4-X</div>
+      <div class="tool-role">Primary Model</div>
+      <div class="tool-desc">Real-Time DEtection TRansformer (X-large variant). Combines transformer attention with CNN backbone for high-accuracy real-time detection without NMS overhead.</div>
+    </div>
+    <div class="tool-card" style="--accent: #ee4c2c">
+      <span class="tool-icon">🔥</span>
+      <div class="tool-name">PyTorch</div>
+      <div class="tool-role">Deep Learning Framework</div>
+      <div class="tool-desc">FP16 mixed precision (AMP), AdamW optimiser, cosine LR scheduling, 3-epoch warmup, and early stopping. Runs on CUDA T4 GPU.</div>
+    </div>
+    <div class="tool-card" style="--accent: #1ca8fb">
+      <span class="tool-icon">⚡</span>
+      <div class="tool-name">Ultralytics</div>
+      <div class="tool-role">Training API</div>
+      <div class="tool-desc">High-level wrapper used for model.train(), model.val(), model.predict(). Handles YAML config, checkpointing, and results.csv logging automatically.</div>
+    </div>
+    <div class="tool-card" style="--accent: #7c3aed">
+      <span class="tool-icon">👁️</span>
+      <div class="tool-name">Supervision</div>
+      <div class="tool-role">Annotation Utilities</div>
+      <div class="tool-desc">Bounding box drawing, label rendering, and colour-coded annotations on images and video frames.</div>
+    </div>
+    <div class="tool-card" style="--accent: #22c55e">
+      <span class="tool-icon">🌡️</span>
+      <div class="tool-name">EigenCAM</div>
+      <div class="tool-role">Explainable AI (XAI)</div>
+      <div class="tool-desc">Grad-CAM variant applied via pytorch-grad-cam. Produces per-class heat maps showing which image regions drive each detection decision.</div>
+    </div>
+    <div class="tool-card" style="--accent: #f59e0b">
+      <span class="tool-icon">🏗️</span>
+      <div class="tool-name">Google Colab</div>
+      <div class="tool-role">Training Environment</div>
+      <div class="tool-desc">NVIDIA T4 GPU runtime. Models and outputs persisted to Google Drive. kaggle.json for dataset download via Kaggle API.</div>
+    </div>
+    <div class="tool-card" style="--accent: #06b6d4">
+      <span class="tool-icon">📦</span>
+      <div class="tool-name">OpenCV</div>
+      <div class="tool-role">Video Processing</div>
+      <div class="tool-desc">Frame-by-frame inference on input video. BGR → RGB conversion, bounding box rendering, and H.264 mp4 export.</div>
+    </div>
+    <div class="tool-card" style="--accent: #f97316">
+      <span class="tool-icon">📐</span>
+      <div class="tool-name">scikit-learn</div>
+      <div class="tool-role">Evaluation Metrics</div>
+      <div class="tool-desc">Per-class Precision, Recall, F1, MCC, and confusion matrix computed from inference results on the held-out test split.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Built with <strong>RT-DETRv4-X</strong> · Developed by <strong>Athithya Krishnaa</strong> &nbsp;|&nbsp; 
+  Dataset: <a href="https://www.kaggle.com/datasets/athithyakrishnaa/ppe-clean-dataset" target="_blank" style="color:var(--amber);text-decoration:none;font-weight:600;">PPE Clean Dataset (Kaggle)</a>
+</footer>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" class="lightbox">
+  <button id="lightbox-close" title="Close">&times;</button>
+  <img src="" alt="Fullscreen view">
+</div>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 60);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => obs.observe(el));
+
+  // Lightbox Logic
+  const lb = document.getElementById('lightbox');
+  const lbImg = lb.querySelector('img');
+  const lbClose = document.getElementById('lightbox-close');
+
+  document.querySelectorAll('img:not(.no-lb)').forEach(img => {
+    img.addEventListener('click', () => {
+      lbImg.src = img.src;
+      lb.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  const closeLb = () => {
+    lb.classList.remove('active');
+    document.body.style.overflow = '';
+  };
+
+  lbClose.addEventListener('click', closeLb);
+  lb.addEventListener('click', (e) => { if(e.target === lb) closeLb(); });
+  window.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeLb(); });
+</script>
+</body>
+</html>
