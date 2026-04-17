@@ -22,24 +22,51 @@ def main():
     # 📥 Cloud Download Logic
     if not os.path.exists(model_path):
         import requests
-        # Check if URL is provided in ENV or use placeholder
-        url = os.getenv("MODEL_URL", "https://huggingface.co/AthithyaKrishnaa/ppe-detection-system/resolve/main/best.pt")
+        
+        # Determine the best URL
+        url = os.getenv("MODEL_URL")
+        if not url:
+            # Try to build Supabase URL if keys exist
+            supabase_url = os.getenv("SUPABASE_URL")
+            if supabase_url:
+                # Ensure we have the public storage path
+                url = f"{supabase_url.rstrip('/')}/storage/v1/object/public/models/best.pt"
+            else:
+                # Fallback to HuggingFace
+                url = "https://huggingface.co/AthithyaKrishnaa/ppe-detection-system/resolve/main/best.pt"
         
         print(f"Model not found at {model_path}. Downloading from {url}...")
         
         try:
-            response = requests.get(url, stream=True)
+            # Set a timeout for the request
+            response = requests.get(url, stream=True, timeout=120)
             if response.status_code == 200:
                 with open(model_path, 'wb') as f:
                     for chunk in response.iter_content(chunk_size=1024*1024): # 1MB chunks
                         if chunk:
                             f.write(chunk)
                 print("✅ Model downloaded successfully.")
+            elif response.status_code == 404:
+                # If Supabase 404s, try fallback HuggingFace automatically
+                if "supabase" in url:
+                    fallback_url = "https://huggingface.co/AthithyaKrishnaa/ppe-detection-system/resolve/main/best.pt"
+                    print(f"Supabase model not found. Trying fallback: {fallback_url}")
+                    response = requests.get(fallback_url, stream=True, timeout=120)
+                    if response.status_code == 200:
+                         with open(model_path, 'wb') as f:
+                            for chunk in response.iter_content(chunk_size=1024*1024):
+                                if chunk:
+                                    f.write(chunk)
+                         print("✅ Model downloaded from fallback successfully.")
+                         return
+                
+                print(json.dumps({"error": f"Model file not found (404) at {url}. Ensure you have uploaded the model to your storage bucket."}))
+                sys.exit(1)
             else:
-                print(json.dumps({"error": f"Failed to download model. Status: {response.status_code}. Ensure the MODEL_URL is correct."}))
+                print(json.dumps({"error": f"Failed to download model. Status: {response.status_code}. Please check your MODEL_URL or Supabase storage permissions."}))
                 sys.exit(1)
         except Exception as e:
-            print(json.dumps({"error": f"Download failed: {str(e)}"}))
+            print(json.dumps({"error": f"Download triggered a system exception: {str(e)}"}))
             sys.exit(1)
 
     try:
