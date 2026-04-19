@@ -42,4 +42,4 @@ The dataset has the following distribution across the train, validation, and tes
 
 ## 🎥 Output Demo
 
-[![Watch Demo](assets/demo.png)](https://github.com/AthithyaKrishnaa/ppe-detection-system/blob/main/public/output_pics_videos/input_video_annotated_h264.mp4)
+<video src="https://github.com/AthithyaKrishnaa/ppe-detection-system/blob/main/public/output_pics_videos/input_video_annotated_h264.mp4" controls width="600"></video>
