@@ -40,7 +40,9 @@ The dataset has the following distribution across the train, validation, and tes
 - **[2] Safety Vest**: 61
 - **[3] No Safety Vest**: 90
 
-## 🎥 Output Demo
+## 🎥 Output 
+https://github.com/user-attachments/assets/e4f3f66b-cd6b-4c69-bb9e-d76bb92058c1
 
-[![Watch Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://youtu.be/YOUR_VIDEO_ID)
+
+
 
