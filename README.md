@@ -39,3 +39,7 @@ The dataset has the following distribution across the train, validation, and tes
 - **[1] No Helmet**: 41
 - **[2] Safety Vest**: 61
 - **[3] No Safety Vest**: 90
+
+## 🎥 Output Demo
+
+[![Watch Demo](assets/demo.png)](https://github.com/AthithyaKrishnaa/ppe-detection-system/blob/main/public/output_pics_videos/input_video_annotated_h264.mp4)
