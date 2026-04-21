@@ -14,37 +14,49 @@
   <div class="pipeline reveal">
     <div class="pipe-step">
       <div class="pipe-num">01 / TRAINING</div>
-      <span class="pipe-icon">⚙️</span>
+      <span class="pipe-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+      </span>
       <div class="pipe-title">Environment Setup</div>
       <div class="pipe-detail">Install Ultralytics, Supervision, PyTorch. Verify T4 GPU. Mount Google Drive.</div>
     </div>
     <div class="pipe-step">
       <div class="pipe-num">02 / TRAINING</div>
-      <span class="pipe-icon">🗂️</span>
+      <span class="pipe-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+      </span>
       <div class="pipe-title">Dataset Prep</div>
-      <div class="pipe-detail">Download <a href="https://www.kaggle.com/datasets/athithyakrishnaa/ppe-clean-dataset" target="_blank" style="color: var(--amber); text-decoration: none; font-weight: 600;">PPE Clean Dataset</a> from Kaggle. Filter 4 PPE classes. Remap label IDs. Write YAML manifest.</div>
+      <div class="pipe-detail">Download PPE Clean Dataset from Kaggle. Filter 4 PPE classes. Remap label IDs.</div>
     </div>
     <div class="pipe-step">
       <div class="pipe-num">03 / TRAINING</div>
-      <span class="pipe-icon">🧠</span>
+      <span class="pipe-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10l-2-2m-1-5a3 3 0 1 1-3 3"></path><path d="M7 15a10 10 0 0 0 5 5"></path><path d="M2 9a10 10 0 0 1 5-5"></path></svg>
+      </span>
       <div class="pipe-title">Train RT-DETRv4-X</div>
       <div class="pipe-detail">AdamW + cosine LR + FP16. 15 epochs, 640px. Checkpoints saved to Drive.</div>
     </div>
     <div class="pipe-step">
       <div class="pipe-num">04 / TRAINING</div>
-      <span class="pipe-icon">📊</span>
+      <span class="pipe-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      </span>
       <div class="pipe-title">Evaluate</div>
       <div class="pipe-detail">mAP, per-class AP, precision, recall, F1, MCC. FPS benchmark on T4 GPU.</div>
     </div>
     <div class="pipe-step">
       <div class="pipe-num">05 / TESTING</div>
-      <span class="pipe-icon">🎬</span>
+      <span class="pipe-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+      </span>
       <div class="pipe-title">Video & Image Inference</div>
       <div class="pipe-detail">Custom images + video. Annotated outputs with colour-coded bounding boxes.</div>
     </div>
     <div class="pipe-step">
       <div class="pipe-num">06 / TESTING</div>
-      <span class="pipe-icon">🔥</span>
+      <span class="pipe-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.5 4 6.5 2 2 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+      </span>
       <div class="pipe-title">Explainable AI</div>
       <div class="pipe-detail">EigenCAM heatmaps per class — visualises where the model looks to decide.</div>
     </div>
@@ -132,7 +144,7 @@ names:
   <div class="reveal">
     <div class="section-label">Detection Classes</div>
     <h2>What the Model <em>Detects</em></h2>
-    <p class="section-desc">Four PPE classes, colour-coded by compliance status — green for wearing, red/orange for violations.</p>
+    <p class="section-desc">Four PPE classes, colour-coded by compliance status — green/cyan for wearing, red/orange for violations.</p>
   </div>
 
   <div class="class-legend reveal">
@@ -495,9 +507,4 @@ names:
   Dataset: <a href="https://www.kaggle.com/datasets/athithyakrishnaa/ppe-clean-dataset" target="_blank" style="color:var(--amber);text-decoration:none;font-weight:600;">PPE Clean Dataset (Kaggle)</a>
 </footer>
 
-<!-- LIGHTBOX -->
-<div id="lightbox" class="lightbox">
-  <button id="lightbox-close" title="Close">&times;</button>
-  <img src="" alt="Fullscreen view">
-</div>
 

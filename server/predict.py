@@ -2,6 +2,13 @@ import sys
 import json
 from pathlib import Path
 import os
+import io
+
+# Ensure UTF-8 encoding for reliable console output on all platforms
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
 
 def main():
     if len(sys.argv) < 3:
